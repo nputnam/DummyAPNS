@@ -1,0 +1,5 @@
+
+Simple APNS sevrver. Locally it can parse around 250k messages a second. 
+
+Currently the keystore is hardcoded to be in /tmp/keystore.ks with a password of "password"
+
