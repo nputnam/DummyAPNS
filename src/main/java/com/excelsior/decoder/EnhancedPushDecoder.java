@@ -24,6 +24,9 @@ public class EnhancedPushDecoder extends FrameDecoder {
             channelHandlerContext.setAttachment(notification);
         } else {
             notification = (EnhancedNotification) channelHandlerContext.getAttachment();
+           if (notification.getState() == DONE) {
+               notification.setState(READ_COMMAND);
+           }
         }
 
 
@@ -94,7 +97,7 @@ public class EnhancedPushDecoder extends FrameDecoder {
         channelBuffer.markReaderIndex();
 
         if (notification.getState() == DONE) {
-            channelHandlerContext.setAttachment(null);
+
             return notification;
         } else {
             return null;
