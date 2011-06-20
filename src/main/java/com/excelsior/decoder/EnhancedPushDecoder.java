@@ -7,6 +7,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
+
 import static com.excelsior.push.EnhancedNotification.State.*;
 
 public class EnhancedPushDecoder extends FrameDecoder {
@@ -21,8 +22,7 @@ public class EnhancedPushDecoder extends FrameDecoder {
         if (channelHandlerContext.getAttachment() == null) {
             notification = new EnhancedNotification();
             channelHandlerContext.setAttachment(notification);
-        }
-        else {
+        } else {
             notification = (EnhancedNotification) channelHandlerContext.getAttachment();
         }
 
@@ -30,65 +30,63 @@ public class EnhancedPushDecoder extends FrameDecoder {
         if (notification.getState() == READ_COMMAND) {
             if (channelBuffer.readableBytes() < 1) {
                 return null;
-            }
-            else {
+            } else {
                 short command = channelBuffer.readUnsignedByte();
                 notification.setCommand(command);
             }
         }
-        else if (notification.getState() == READ_ID) {
+
+        if (notification.getState() == READ_ID) {
             if (channelBuffer.readableBytes() < 4) {
                 return null;
-            }
-            else {
+            } else {
                 long id = channelBuffer.readUnsignedInt();
                 notification.setId(id);
             }
         }
-        else if (notification.getState() == READ_EXPIRY) {
+
+        if (notification.getState() == READ_EXPIRY) {
             if (channelBuffer.readableBytes() < 4) {
                 return null;
-            }
-            else {
+            } else {
                 long expire = channelBuffer.readUnsignedInt();
                 notification.setExpiry(expire);
             }
         }
-        else if (notification.getState() == READ_TOKEN_LENGTH) {
+
+        if (notification.getState() == READ_TOKEN_LENGTH) {
             if (channelBuffer.readableBytes() < 2) {
                 return null;
-            }
-            else {
+            } else {
                 int tokenLength = channelBuffer.readUnsignedShort();
                 notification.setTokenLength((short) tokenLength);
             }
         }
-        else if (notification.getState() == READ_TOKEN) {
+
+        if (notification.getState() == READ_TOKEN) {
             if (channelBuffer.readableBytes() < notification.getTokenLength()) {
                 return null;
-            }
-            else {
+            } else {
                 byte[] token = new byte[notification.getTokenLength()];
-                channelBuffer.readBytes(token,0, notification.getTokenLength());
+                channelBuffer.readBytes(token, 0, notification.getTokenLength());
                 notification.setToken(token);
             }
         }
-         else if (notification.getState() == READ_PAYLOAD_LENGTH) {
+
+        if (notification.getState() == READ_PAYLOAD_LENGTH) {
             if (channelBuffer.readableBytes() < 2) {
                 return null;
-            }
-            else {
+            } else {
                 int payloadLength = channelBuffer.readUnsignedShort();
                 notification.setPayloadLength((short) payloadLength);
             }
         }
-        else if (notification.getState() == READ_PAYLOAD) {
+        if (notification.getState() == READ_PAYLOAD) {
             if (channelBuffer.readableBytes() < notification.getPayloadLength()) {
                 return null;
-            }
-            else {
+            } else {
                 byte[] payload = new byte[notification.getPayloadLength()];
-                channelBuffer.readBytes(payload,0, notification.getPayloadLength());
+                channelBuffer.readBytes(payload, 0, notification.getPayloadLength());
                 notification.setPayload(payload);
             }
         }
@@ -98,7 +96,7 @@ public class EnhancedPushDecoder extends FrameDecoder {
         if (notification.getState() == DONE) {
             channelHandlerContext.setAttachment(null);
             return notification;
-        }else {
+        } else {
             return null;
         }
     }
