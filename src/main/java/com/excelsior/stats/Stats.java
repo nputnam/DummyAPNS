@@ -5,12 +5,12 @@ public class Stats implements StatsMBean {
         return StatsManager.getMessagesPerSecond();
     }
 
-    public double getBytesOutThroughput() {
+    public double getMegaBytesOutThroughput() {
         // Return Megabytes a second
         return StatsManager.getGlobalTrafficHandler().getTrafficCounter().getLastWriteThroughput() / 1048576;
     }
 
-    public double getBytesInThroughput() {
+    public double getMegaBytesInThroughput() {
         return StatsManager.getGlobalTrafficHandler().getTrafficCounter().getLastReadThroughput() / 1048576;
     }
 }

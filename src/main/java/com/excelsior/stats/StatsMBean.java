@@ -5,7 +5,7 @@ public interface StatsMBean {
 
     public int getMessagesPerSecond();
 
-    public double getBytesOutThroughput();
+    public double getMegaBytesOutThroughput();
 
-    public double getBytesInThroughput();
+    public double getMegaBytesInThroughput();
 }
