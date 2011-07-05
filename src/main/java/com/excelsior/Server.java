@@ -13,7 +13,7 @@ public class Server {
 
     public static void main(String...args) throws Exception{
         CountDownLatch startup = new CountDownLatch(1);
-        APNSServer server = new APNSServer(2195,startup);
+        APNSServer server = new APNSServer("/tmp/keystore.ks","password",2195,startup);
         log.info("Starting server on port 2195");
         Thread serverThread = new Thread(server);
         serverThread.start();

@@ -12,10 +12,14 @@ public class APNSServer implements Runnable {
 
     private final int port;
     private final CountDownLatch latch;
+    private final String keyStorePath;
+    private final String keyStorePassword;
 
-    public APNSServer(int port, CountDownLatch latch) {
+    public APNSServer(String keyStorePath, String keyStorePassword, int port, CountDownLatch latch) {
         this.port = port;
         this.latch = latch;
+        this.keyStorePath = keyStorePath;
+        this.keyStorePassword = keyStorePassword;
     }
 
     public void run() {
@@ -24,7 +28,7 @@ public class APNSServer implements Runnable {
                 Executors.newCachedThreadPool()));
 
         // Configure the pipeline factory.
-        bootstrap.setPipelineFactory(new SecurePipelineFactory());
+        bootstrap.setPipelineFactory(new SecurePipelineFactory(keyStorePath,keyStorePassword));
 
         // Bind and start to accept incoming connections.
         bootstrap.bind(new InetSocketAddress(port));

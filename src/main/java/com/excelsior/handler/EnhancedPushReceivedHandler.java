@@ -1,6 +1,7 @@
 package com.excelsior.handler;
 
 
+import com.excelsior.MessageUtils;
 import com.excelsior.push.EnhancedNotification;
 import com.excelsior.stats.StatsManager;
 import org.apache.log4j.LogManager;
@@ -37,6 +38,11 @@ public class EnhancedPushReceivedHandler extends SimpleChannelUpstreamHandler {
       public void messageReceived(
              ChannelHandlerContext ctx, MessageEvent e) {
           EnhancedNotification message = (EnhancedNotification) e.getMessage();
+          short errorCode = MessageUtils.getErrorCode(message);
+          if (errorCode != 0 ) {
+              writeErrorCode(ctx.getChannel(), message,errorCode);
+              ctx.getChannel().close();
+          }
           StatsManager.incr(message);
       }
 
@@ -67,4 +73,13 @@ public class EnhancedPushReceivedHandler extends SimpleChannelUpstreamHandler {
              }
          }
      }
+
+    private void writeErrorCode(Channel channel, EnhancedNotification message, int error) {
+        byte command = 8;
+        channel.write(command);
+        channel.write((byte) error);
+        if (message != null) {
+            channel.write((int)message.getId());
+        }
+    }
 }

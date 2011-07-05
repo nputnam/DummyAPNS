@@ -1,0 +1,1 @@
+V	120604194712Z		100001	unknown	/C=US/ST=Oregon/O=Fake/OU=APNS/CN=test

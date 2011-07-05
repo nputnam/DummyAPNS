@@ -1,5 +1,12 @@
 package com.excelsior.push;
 
+/**
+ * Class to represent a enhanced push notification as outlined by Apple here :
+ *
+ * http://developer.apple.com/library/ios/#documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingWIthAPS/CommunicatingWIthAPS.html
+ *
+ *
+ */
 public class EnhancedNotification {
 
     public enum State {
