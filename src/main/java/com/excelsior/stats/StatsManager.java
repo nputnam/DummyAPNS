@@ -20,7 +20,8 @@ public class StatsManager {
     private static final Logger log = LogManager.getLogger(StatsManager.class);
 
     private static StatsManager instance = new StatsManager();
-    private static AtomicLong count = new AtomicLong(0);
+    private static long count = 0;
+    private static AtomicLong currentCount = new AtomicLong(0);
     private static final long startTime = new Date().getTime();
     private static GlobalTrafficShapingHandler trafficShapingHandler = new GlobalTrafficShapingHandler(Executors.newSingleThreadExecutor());
 
@@ -29,7 +30,7 @@ public class StatsManager {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                count.set(0);
+                count = currentCount.getAndSet(0);
             }
         },0, TimeUnit.SECONDS.toMillis(1));
     }
@@ -48,11 +49,11 @@ public class StatsManager {
     }
 
     public static void incr(EnhancedNotification notification) {
-        count.getAndAdd(1);
+        currentCount.getAndAdd(1);
     }
 
     public static int getMessagesPerSecond() {
-        return count.intValue();
+        return currentCount.intValue();
     }
 
     public static GlobalTrafficShapingHandler getGlobalTrafficHandler() {
