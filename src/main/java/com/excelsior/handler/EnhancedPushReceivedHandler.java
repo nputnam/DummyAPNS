@@ -3,11 +3,17 @@ package com.excelsior.handler;
 
 import com.excelsior.MessageUtils;
 import com.excelsior.push.EnhancedNotification;
+import com.excelsior.push.EnhancedNotificationError;
 import com.excelsior.stats.StatsManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.ssl.SslHandler;
+
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 
 
 public class EnhancedPushReceivedHandler extends SimpleChannelUpstreamHandler {
@@ -41,7 +47,7 @@ public class EnhancedPushReceivedHandler extends SimpleChannelUpstreamHandler {
           short errorCode = MessageUtils.getErrorCode(message);
           if (errorCode != 0 ) {
               writeErrorCode(ctx.getChannel(), message,errorCode);
-              ctx.getChannel().close();
+              //ctx.getChannel().close();
           }
           StatsManager.incr(message);
       }
@@ -49,9 +55,15 @@ public class EnhancedPushReceivedHandler extends SimpleChannelUpstreamHandler {
       @Override
       public void exceptionCaught(
              ChannelHandlerContext ctx, ExceptionEvent e) {
-       //   log.warn("Unexpected exception from downstream.",e);
+          log.error("Unexpected exception from downstream.", e.getCause());
           e.getChannel().close();
       }
+
+    @Override
+    public void writeComplete(
+            ChannelHandlerContext ctx, WriteCompletionEvent e) throws Exception {
+        ctx.sendUpstream(e);
+    }
 
 
      private static final class ConnectionLogger implements ChannelFutureListener {
@@ -74,12 +86,15 @@ public class EnhancedPushReceivedHandler extends SimpleChannelUpstreamHandler {
          }
      }
 
-    private void writeErrorCode(Channel channel, EnhancedNotification message, int error) {
-        byte command = 8;
-        channel.write(command);
-        channel.write((byte) error);
-        if (message != null) {
-            channel.write((int)message.getId());
-        }
+    private void writeErrorCode(Channel channel, EnhancedNotification message, int errorCode) {
+        EnhancedNotificationError error = new EnhancedNotificationError();
+        error.setStatus((short) errorCode);
+        error.setId(message.getId());
+        ChannelFuture write = channel.write(error);
+        write.addListener(new ChannelFutureListener() {
+            public void operationComplete(ChannelFuture future) throws Exception {
+                future.getChannel().disconnect();
+            }
+        });
     }
 }

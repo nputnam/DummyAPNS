@@ -1,6 +1,7 @@
 package com.excelsior.pipeline;
 
 import com.excelsior.decoder.EnhancedPushDecoder;
+import com.excelsior.encoder.EnhancedPushErrorEncoder;
 import com.excelsior.handler.EnhancedPushReceivedHandler;
 import com.excelsior.handler.traffic.GlobalTrafficShapingHandler;
 import com.excelsior.stats.StatsManager;
@@ -32,13 +33,13 @@ public class SecurePipelineFactory implements ChannelPipelineFactory {
                 SSLContextFactory.getServerContext(keyStorePath, keyStorePassword).createSSLEngine();
         engine.setUseClientMode(false);
 
-        pipeline.addLast("ssl", new SslHandler(engine, true));
+        pipeline.addLast("ssl", new SslHandler(engine, false));
 
         // On top of the SSL handler, add the text line codec.
         //  pipeline.addLast("framer", new DelimiterBasedFrameDecoder(
         //          8192, Delimiters.lineDelimiter()));
         pipeline.addLast("decoder", new EnhancedPushDecoder());
-        pipeline.addLast("encoder", new StringEncoder());
+        pipeline.addLast("encoder", new EnhancedPushErrorEncoder());
         pipeline.addLast("traffic", StatsManager.getGlobalTrafficHandler());
 
         // and then business logic.
