@@ -32,8 +32,9 @@ public class SecurePipelineFactory implements ChannelPipelineFactory {
         SSLEngine engine =
                 SSLContextFactory.getServerContext(keyStorePath, keyStorePassword).createSSLEngine();
         engine.setUseClientMode(false);
-
-        pipeline.addLast("ssl", new SslHandler(engine, false));
+        SslHandler sslHandler = new SslHandler(engine, true);
+        sslHandler.setEnableRenegotiation(true);
+        pipeline.addLast("ssl", sslHandler);
 
         // On top of the SSL handler, add the text line codec.
         //  pipeline.addLast("framer", new DelimiterBasedFrameDecoder(
