@@ -44,7 +44,7 @@ public class StatsManager {
       mbs.registerMBean(mbean, name);
         }
         catch (Exception e)  {
-            log.error("Error starting stats maanger.",e);
+            log.error("Error starting stats manager.",e);
         }
     }
 
