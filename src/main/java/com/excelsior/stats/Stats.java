@@ -13,4 +13,8 @@ public class Stats implements StatsMBean {
     public double getMegaBytesInThroughput() {
         return StatsManager.getGlobalTrafficHandler().getTrafficCounter().getLastReadThroughput() / 1048576;
     }
+
+    public int getConnectionCount() {
+        return StatsManager.getConnectionCount();
+    }
 }

@@ -13,6 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class StatsManager {
@@ -21,7 +22,9 @@ public class StatsManager {
 
     private static StatsManager instance = new StatsManager();
     private static long count = 0;
+    private static AtomicLong allTimeCount = new AtomicLong(0);
     private static AtomicLong currentCount = new AtomicLong(0);
+    private static AtomicInteger connectionCount = new AtomicInteger(0);
     private static final long startTime = new Date().getTime();
     private static GlobalTrafficShapingHandler trafficShapingHandler = new GlobalTrafficShapingHandler(Executors.newSingleThreadExecutor());
 
@@ -32,31 +35,47 @@ public class StatsManager {
             public void run() {
                 count = currentCount.getAndSet(0);
             }
-        },0, TimeUnit.SECONDS.toMillis(1));
+        }, 0, TimeUnit.SECONDS.toMillis(1));
     }
 
     private StatsManager() {
         log.info("Starting stats manager");
         try {
-        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-      ObjectName name = new ObjectName("com.excelsior:type=Stats");
-      StatsMBean mbean = new Stats();
-      mbs.registerMBean(mbean, name);
-        }
-        catch (Exception e)  {
-            log.error("Error starting stats manager.",e);
+            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+            ObjectName name = new ObjectName("com.excelsior:type=Stats");
+            StatsMBean mbean = new Stats();
+            mbs.registerMBean(mbean, name);
+        } catch (Exception e) {
+            log.error("Error starting stats manager.", e);
         }
     }
 
     public static void incr(EnhancedNotification notification) {
-        currentCount.getAndAdd(1);
+        currentCount.incrementAndGet();
+        allTimeCount.incrementAndGet();
+    }
+
+    public static void incrConnectionCount() {
+        connectionCount.incrementAndGet();
+    }
+
+    public static void decrConnectionCount() {
+        connectionCount.decrementAndGet();
     }
 
     public static int getMessagesPerSecond() {
         return currentCount.intValue();
     }
 
+    public static int getConnectionCount() {
+        return connectionCount.get();
+    }
+
     public static GlobalTrafficShapingHandler getGlobalTrafficHandler() {
         return trafficShapingHandler;
+    }
+
+    public static long getAllTimeCount() {
+        return allTimeCount.longValue();
     }
 }

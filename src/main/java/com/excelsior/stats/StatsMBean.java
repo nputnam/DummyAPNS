@@ -8,4 +8,6 @@ public interface StatsMBean {
     public double getMegaBytesOutThroughput();
 
     public double getMegaBytesInThroughput();
+
+    public int getConnectionCount();
 }

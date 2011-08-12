@@ -38,7 +38,15 @@ public class EnhancedPushReceivedHandler extends SimpleChannelUpstreamHandler {
           // Begin handshake.
           ChannelFuture handshake = sslHandler.handshake();
           handshake.addListener(new ConnectionLogger(sslHandler));
+          StatsManager.incrConnectionCount();
       }
+
+    @Override
+    public void channelDisconnected(
+            ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        StatsManager.decrConnectionCount();
+        super.channelDisconnected(ctx,e);
+    }
 
       @Override
       public void messageReceived(
@@ -57,6 +65,7 @@ public class EnhancedPushReceivedHandler extends SimpleChannelUpstreamHandler {
              ChannelHandlerContext ctx, ExceptionEvent e) {
           log.error("Unexpected exception from downstream.", e.getCause());
           e.getChannel().close();
+          StatsManager.decrConnectionCount();
       }
 
     @Override
