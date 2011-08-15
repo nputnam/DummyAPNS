@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import com.excelsior.handler.ChannelManager;
 import com.excelsior.pipeline.SecurePipelineFactory;
 import com.excelsior.stats.StatsManager;
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -47,11 +46,6 @@ public class APNSServer extends Thread {
     }
 
     public void stop(CountDownLatch latch) throws Exception {
-        List<Channel> channels = ChannelManager.getChannels();
-        for (Channel channel : channels) {
-            ChannelFuture close = channel.close();
-            close.awaitUninterruptibly();
-        }
         bossThreadPool.shutdownNow();
         workerThreadPool.shutdownNow();
         bossThreadPool.awaitTermination(1L, TimeUnit.SECONDS);
